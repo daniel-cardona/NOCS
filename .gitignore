@@ -6,6 +6,7 @@ solver/examples/obstacleAvoidance/*.[!cpp]
 solver/examples/RRPlanarRobot/*.[!cpp]
 
 eigen3/
+Coppelia/
 ipopt/include/
 ipopt/lib/
 spike/danielc/
