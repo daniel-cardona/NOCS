@@ -1,0 +1,4 @@
+
+#cmakedefine pinocchio_compile
+#cmakedefine rbdl_compile
+

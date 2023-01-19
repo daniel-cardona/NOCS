@@ -1,0 +1,100 @@
+Eigen::VectorXd zk(problem.nStates+problem.nControls);
+    zk.setRandom();
+
+    Eigen::VectorXd states(problem.nStates);
+    Eigen::VectorXd controls(problem.nControls);
+
+    states=zk.head(problem.nStates);
+    controls=zk.tail(problem.nControls);
+
+    Eigen::VectorXd jacColumn(problem.nStates);
+
+    Eigen::VectorXd jacColumnPath(problem.nPath);
+
+    Eigen::VectorXd jacColumnEvent_t0(problem.nStates+1);
+    Eigen::VectorXd jacColumnEvent_tF(problem.nStates+1);
+
+    Eigen::MatrixXd dxJac(problem.nStates,problem.nStates+problem.nControls);
+    Eigen::MatrixXd dxJac2(problem.nStates,problem.nStates+problem.nControls);
+
+    Eigen::MatrixXd pathJac(problem.nPath,problem.nStates+problem.nControls);
+    Eigen::MatrixXd pathJac2(problem.nPath,problem.nStates+problem.nControls);
+
+    Eigen::MatrixXd eventJac_t0(problem.nEvents,problem.nStates+1);
+    Eigen::MatrixXd eventJac_tF(problem.nEvents,problem.nStates+1);
+
+    Eigen::MatrixXd eventJac_t0_2(problem.nEvents,problem.nStates+1);
+    Eigen::MatrixXd eventJac_tF_2(problem.nEvents,problem.nStates+1);
+
+    double tk=10;
+
+    Eigen::VectorXd z_e(problem.nStates+1);
+    z_e.setRandom();
+
+    Eigen::VectorXd z_eF(problem.nStates+1);
+    z_eF.setRandom();
+
+    for(int i=0; i<problem.nStates+problem.nControls; i++){
+
+        nocs::dxJacColumn(problem,zk,i,jacColumn);
+        nocs::pathJacColumn(problem,zk,i,jacColumnPath);
+
+        dxJac.col(i)=jacColumn;
+        pathJac.col(i)=jacColumnPath;
+
+    }
+
+
+    for(int i=0;i<problem.nStates+1;i++){
+
+        nocs::eventJacColumn_t0(problem,z_e,i,jacColumnEvent_t0);
+        nocs::eventJacColumn_tf(problem,z_eF,i,jacColumnEvent_tF);
+
+        eventJac_t0.col(i)=jacColumnEvent_t0;
+        eventJac_tF.col(i)=jacColumnEvent_tF;
+
+    }
+
+
+
+    Eigen::VectorXd x0(problem.nStates);
+    Eigen::VectorXd xN(problem.nStates);
+
+    x0=z_e.tail(problem.nStates);
+    xN=z_eF.tail(problem.nStates);
+
+    double t0=z_e(0);
+    double tF=z_eF(0);
+
+    Eigen::VectorXd Dt0(problem.nEvents);
+    Eigen::VectorXd DtF(problem.nEvents);
+
+    Eigen::MatrixXd De0(problem.nEvents,problem.nStates);
+    Eigen::MatrixXd Def(problem.nEvents,problem.nStates);
+
+    nocs::Function::analytical::fGradient(states,controls,tk,dxJac2,problem);
+    nocs::Function::analytical::pathGradient(states,controls,tk,pathJac2,problem);
+    nocs::Function::analytical::eventGradient(x0,xN,t0,tF,Dt0,DtF,De0,Def,problem);
+
+    eventJac_t0_2.col(0)=Dt0;
+    eventJac_t0_2.block(0,1,problem.nEvents,problem.nStates)=De0;
+
+    eventJac_tF_2.col(0)=DtF;
+    eventJac_tF_2.block(0,1,problem.nEvents,problem.nStates)=Def;
+
+
+    cout<<"Numerical vs Analitycal block of the dynamics"<<endl;
+    cout<<dxJac-dxJac2<<endl;
+
+
+    cout<<endl;
+    cout<<"Numerical vs Analitycal block of the path constraints"<<endl;
+    cout<<pathJac-pathJac2<<endl;
+
+    cout<<endl;
+    cout<<"Numerical vs Analitycal block of the event constraints"<<endl;
+    cout<<eventJac_t0-eventJac_t0_2<<endl;
+
+    cout<<endl;
+    cout<<"Numerical vs Analitycal block of the event constraints"<<endl;
+    cout<<eventJac_tF-eventJac_tF_2<<endl;
