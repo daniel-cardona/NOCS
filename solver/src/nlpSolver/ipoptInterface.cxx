@@ -183,7 +183,18 @@ bool IPOPT_INTERFACE::eval_f(
 
    }
 
-   obj_value =problem->costFunction(*problem,z);
+   //Update statistics
+
+   problem->statistics.f_cnt++;
+
+   auto f_start = std::chrono::high_resolution_clock::now();
+      obj_value =problem->costFunction(*problem,z);
+   auto f_end = std::chrono::high_resolution_clock::now();
+
+   double f_time=std::chrono::duration_cast<std::chrono::microseconds>(f_end-f_start).count();
+
+   problem->statistics.f_avg_t=f_time/problem->statistics.f_cnt;
+   problem->statistics.f_tt+=f_time;
 
    return true;
 }
@@ -210,7 +221,16 @@ bool IPOPT_INTERFACE::eval_grad_f(
    //Obtain the gradient of the cost function
    Eigen::VectorXd costObjValueGrad;
 
-   problem->gradientCost(*problem,z,costObjValueGrad);
+   problem->statistics.fgrad_cnt++;
+
+   auto f_start = std::chrono::high_resolution_clock::now();
+      problem->gradientCost(*problem,z,costObjValueGrad);
+   auto f_end = std::chrono::high_resolution_clock::now();
+
+   double f_time=std::chrono::duration_cast<std::chrono::microseconds>(f_end-f_start).count();
+
+   problem->statistics.fgrad_avg_t =f_time/problem->statistics.fgrad_cnt;
+   problem->statistics.fgrad_tt+=f_time;
 
    for( Ipopt::Index i = 0; i < problem->NLP.nDecVar; i++ )
    {
@@ -234,7 +254,6 @@ bool IPOPT_INTERFACE::eval_g(
    assert(n == problem->NLP.nDecVar);
    assert(m == problem->NLP.nCns);
 
-
    Eigen::VectorXd z(problem->NLP.nDecVar);
 
    //Let's obtain the decVar vector in such a way that can be used for EIGEN!
@@ -246,7 +265,16 @@ bool IPOPT_INTERFACE::eval_g(
 
    Eigen::VectorXd cns(problem->NLP.nCns);
 
+   problem->statistics.g_cnt++;
+
+   auto f_start = std::chrono::high_resolution_clock::now();
     problem->cnsFunction(*problem,z,cns);
+   auto f_end = std::chrono::high_resolution_clock::now();
+
+   double f_time=std::chrono::duration_cast<std::chrono::microseconds>(f_end-f_start).count();
+
+   problem->statistics.g_avg_t =f_time/problem->statistics.g_cnt;
+   problem->statistics.g_tt+=f_time;
 
    for( Ipopt::Index i = 0; i < problem->NLP.nCns; i++ )
    {
@@ -304,16 +332,26 @@ bool IPOPT_INTERFACE::eval_jac_g(
        //Let's obtain the decVar vector in such a way that can be used for EIGEN!
        for( Ipopt::Index i = 0; i < problem->NLP.nDecVar; i++ )
        {
-
         z(i)=x[i];
-
        }
 
        //Obtain the gradient of the jacobian
 
        Eigen::VectorXd nzValues(problem->NLP.sparsity.nnz_J);
 
-       problem->cnsJacobian(*problem,z,nzValues);
+       problem->statistics.g_jac_cnt++;
+
+       auto f_start = std::chrono::high_resolution_clock::now();
+               problem->cnsJacobian(*problem,z,nzValues);
+       auto f_end = std::chrono::high_resolution_clock::now();
+
+       double f_time=std::chrono::duration_cast<std::chrono::microseconds>(f_end-f_start).count();
+
+
+       problem->statistics.g_jac_tt+=f_time;
+
+       problem->statistics.g_jac_avg_t =problem->statistics.g_jac_tt/problem->statistics.g_jac_cnt;
+
 
       // return the values of the Jacobian of the constraints
 

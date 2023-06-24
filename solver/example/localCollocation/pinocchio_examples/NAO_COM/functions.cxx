@@ -48,6 +48,8 @@ double nocs::Function::integrand_cost(const Eigen::VectorXd &states,const Eigen:
 
     cost2=diff.transpose()*diff;
 
+    //double cost=states.tail(nDoF).transpose()*states.tail(nDoF);
+
     double cost=cost2;//+(w*controls.transpose()*controls);
 
     return cost;
@@ -233,7 +235,11 @@ void nocs::Function::analytical::costGradient(const Eigen::VectorXd &states, con
     }
 
 
-    //gradient.tail(problem.nControls)=2*controls;
+//    gradient.setZero(problem.nStates+problem.nControls);
+
+//    //gradient.tail(problem.nControls)=2*controls;
+
+//    gradient.segment(problem.model.nq,problem.model.nq)=2*states.tail(nDoF);
 
 
 

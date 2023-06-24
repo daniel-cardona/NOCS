@@ -1,11 +1,6 @@
 solver/build/
 solver/*.user
 
-solver/examples/NAO/*.[!cpp]
-solver/examples/obstacleAvoidance/*.[!cpp]
-solver/examples/RRPlanarRobot/*.[!cpp]
+Coppelia/
 
-eigen3/
-ipopt/include/
-ipopt/lib/
-spike/danielc/
+

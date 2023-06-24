@@ -32,7 +32,6 @@
 #include <chrono>
 
 
-
 #ifndef PINOCCHIO_MODEL_DIR
   #define PINOCCHIO_MODEL_DIR "../../../../../data/pinocchio_models"
 #endif
@@ -44,22 +43,13 @@ int main(){
 
     //Set the main data of the optimal control problem
 
+    int nStates=48;
+    int nControls=24;
+    int nEvents=96;
+    int nPath=0;
+    int nDiscretePoints=120;
 
-
-    const int nTest=4;
-
-    std::vector<long> durVec;
-
-
-    for(int i=1;i<nTest+1;i++){
-
-        int nStates=48;
-        int nControls=24;
-        int nEvents=96;
-        int nPath=0;
-        int nDiscretePoints=30*i;
-
-    //&-------------- Build the Robot using the rigid body dynamics library rbdl ----------------------&
+    //&-------------- Build the Robot using the rigid body dynamics library pinocchio ----------------------&
 
     nocs::localCollocation problem(nStates,nControls,nDiscretePoints,nPath,nEvents,urdf_filename);
 
@@ -167,70 +157,12 @@ int main(){
    //&---------------Boundary and path constraints-------------------&
    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-     Eigen::VectorXd initial_configuration(problem.robot_model->q_size);
-     Eigen::VectorXd end_configuration(problem.robot_model->q_size);
+     Eigen::VectorXd initial_configuration(problem.model.nq);
+     Eigen::VectorXd end_configuration(problem.model.nq);
 
      initial_configuration.setZero();
 
-     /*/Pose 1 final // POse 3 initial
-     initial_configuration<<   -0.0070,
-                           -0.8639,
-                            1.9967,
-                           -1.1345,
-                            0.0052,
-                            0.0000,
-                            0.0018,
-                            0.8919,
-                           -2.0822,
-                           -0.0436,
-                           -0.0000,
-                           -0.9861,
-                           -0.0000,
-                            0.0018,
-                           -0.9756,
-                            2.0734,
-                            0.0384,
-                           -0.0000,
-                            0.0000,
-                           -0.0018,
-                           -1.1345,
-                            1.9967,
-                           -0.8639,
-                            0.0035;*/
-
-     //Pose 2
-     /*end_configuration<<     0.0611, -1.0385,2.0909,-1.0385,0.4154,-0.0018,
-                             0.1885,0.1030,-0.0035,-1.4608,-0.0000,-1.1833,
-                            -0.0000,1.0454,-1.3247,1.5673,0.0785,0.0000,
-                            -0.0018,-0.5463,-0.1065,-0.0000,-0.0087,0.3944;*/
-
-     //Pose 3
-     /*end_configuration<< 0.06109,
-                         -1.03847,
-                         2.09090,
-                         -1.03847,
-                         0.41539,
-                         -0.00175,
-                         0.18850,
-                         0.10297,
-                         -0.00349,
-                         -1.46084,
-                         0.00000,
-                         -1.18333,
-                         0.00000,
-                         1.04545,
-                         -1.32470,
-                         1.56731,
-                         0.07854,
-                         0.00000,
-                         -0.00175,
-                         -0.54629,
-                         -0.10647,
-                         0,
-                         -0.00873,
-                         0.39444;*/
-
-//     //Pose 4
+     //Pose 4
 
      end_configuration<<  0.004,
                          -0.769,
@@ -394,43 +326,50 @@ int main(){
    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 
-       nocs::localCollocation probSol;
-
-       auto start = std::chrono::high_resolution_clock::now();
-        nocs::nocsLocal(problem,probSol);
-       auto stop = std::chrono::high_resolution_clock::now();
-
-       auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-
-       cout <<"Time required for full resolution of the problem: " <<duration<<" microseconds"<< endl;
-       durVec.push_back(duration);
+   Eigen::VectorXd z(problem.NLP.nDecVar);
 
 
-//       std::ofstream file2("xSolution.txt");
-//       if (file2.is_open())
-//       {
-//           Eigen::MatrixXd m = probSol.solution.xSol;
-//           file2 << m << '\n';
-//       }
-//       file2.close();
+   const int nTest=5;
 
-//       std::ofstream file4("tSolution.txt");
-//       if (file4.is_open())
-//       {
-//           Eigen::VectorXd m = probSol.solution.tSol;
-//           file4 << m << '\n';
-//       }
-//       file4.close();
+   long durVec[nTest];
+   long durVec2[nTest];
 
+   for(int i=0;i<nTest;i++){
+
+   z.setRandom();
+
+   auto start=std::chrono::high_resolution_clock::now();
+
+   double v1= nocs::localGenerator::costFunction(problem,z);
+
+
+   auto stop = std::chrono::high_resolution_clock::now();
+
+
+   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+
+   auto start2=std::chrono::high_resolution_clock::now();
+
+    double v2= nocs::localGenerator::costFcn(problem,z);
+
+   auto stop2 = std::chrono::high_resolution_clock::now();
+
+   auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2).count();
+
+    std::cout<<v1<<" --  "<<v2<<std::endl;
+
+   durVec2[i]=duration2;
+   durVec[i]=duration;
 
     }//END FOR------------------MULTIPLE ITERATIONS OF THE ALGORITHM
 
-    for(int i=0; i<nTest; i++){
 
-        std::cout<<durVec.at(i)<<std::endl;
+    for(int i=0;i<nTest;i++){
+
+        std::cout<<durVec[i]<<" vs  "<< durVec2[i]<<std::endl;
+
 
     }
-
-
     return 0;
+
 }

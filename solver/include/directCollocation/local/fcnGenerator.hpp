@@ -48,6 +48,8 @@ namespace localGenerator{
     /*! \return value of the cost function */
     double costFcn(localCollocation &problem, Eigen::VectorXd &z);
 
+    double costFunction(localCollocation &problem,Eigen::VectorXd &z);
+
 
     //! Compute the vector of constraints exploiting the right hand side of the collocation method.
     /*! \return void */

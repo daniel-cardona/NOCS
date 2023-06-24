@@ -25,8 +25,6 @@
 
 
 #include "directCollocation/local/nocsLocal.hpp"
-#include "directCollocation/local/fcnGenerator.hpp"
-#include "directCollocation/local/blockOperations.hpp"
 #include "directCollocation/local/utils.hpp"
 
 #include <iostream>
@@ -114,6 +112,7 @@ int main(){
     problem.bounds.finalTime.lower(0)=10.0;
     problem.bounds.finalTime.upper(0)=20.0;
 
+
    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
    //&---------------Boundary and path constraints-------------------&
    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -124,17 +123,18 @@ int main(){
      initial_configuration.setZero();
 
 
-     end_configuration<<0.2000, -0.3513, 1.1000, -1.5300, 0, 0,
-                        1.4112, 1.2000, -1.3730, -0.9863, -0.0062,
-                        0.0015, -0.6000,
-                        1.3945, -1.2000, 1.3698, 0.9879, -0.0077,
-                        0, 0.0016, 0.47822, 0.6995, -0.3528, 0; //Funciona! Pose 2
 
-//     end_configuration<< 0.261888,   0.116923,   0.376738,  -0.890213,  -0.238084,  -0.0422651,
-//                        -1.11245,    1.64858,    1.97818,   -0.448697,  -0.313108,
-//                         0.130127,  -0.414472,
-//                         0.935231,  -0.01063,    0.163243,   1.27784,   -0.182238,
-//                        -0.0422651, -0.363659,  -1.53504,    0.72237,    0.398548,   0.397942; //Funciona! Pose 1
+//     end_configuration<<0.2000, -0.3513, 1.1000, -1.5300, 0, 0,
+//                        1.4112, 1.2000, -1.3730, -0.9863, -0.0062,
+//                        0.0015, -0.6000,
+//                        1.3945, -1.2000, 1.3698, 0.9879, -0.0077,
+//                        0, 0.0016, 0.47822, 0.6995, -0.3528, 0; //Funciona! Pose 2
+
+     end_configuration<< 0.261888,   0.116923,   0.376738,  -0.890213,  -0.238084,  -0.0422651,
+                        -1.11245,    1.64858,    1.97818,   -0.448697,  -0.313108,
+                         0.130127,  -0.414472,
+                         0.935231,  -0.01063,    0.163243,   1.27784,   -0.182238,
+                        -0.0422651, -0.363659,  -1.53504,    0.72237,    0.398548,   0.397942; //Funciona! Pose 1
 
 
      //Movimiento 3
@@ -295,7 +295,7 @@ int main(){
    problem.algorithm.kappa=0.1;       //Default is 1/10 [Betts,2014]
    problem.algorithm.error_ode=1e-2;
    problem.algorithm.maxPoints=4;
-   problem.algorithm.maxMeshIterations=4;
+   problem.algorithm.maxMeshIterations=3;
 
 
    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

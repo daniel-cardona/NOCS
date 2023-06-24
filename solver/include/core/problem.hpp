@@ -8,7 +8,7 @@
 #include <math.h>
 #include <vector>
 #include <fstream>
-
+#include <chrono>
 
 //Ipopt libraries
 #include "IpTNLP.hpp"

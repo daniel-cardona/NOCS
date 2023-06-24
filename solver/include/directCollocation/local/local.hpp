@@ -82,6 +82,8 @@ public:
 
     deriv derivatives; //First-order computation method
 
+    stats statistics; //Statistics structure
+
     std::string robotFile; //Direction to the urdf (if any)
 
 
@@ -185,6 +187,10 @@ public:
     /*! \return void */
 
     void printInformation();
+
+    //! Print the statistics of the NLP resolution.
+    /*! \return void */
+    void printStatistics();
 
     //! Transcribe the optimal control problem to a NLP
     /*! \return void */

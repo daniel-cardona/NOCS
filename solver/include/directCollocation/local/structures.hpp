@@ -213,6 +213,35 @@ struct deriv{
 
 };
 
+struct stats{
+
+    //Cost function stats
+
+    int f_cnt=0;  //Number of calls
+    double f_avg_t; //Avg computation time
+    double f_tt=0.0;    //Total time
+
+    //Gradient cost function stats
+
+    int fgrad_cnt=0;  //Number of calls
+    double fgrad_avg_t; //Avg computation time
+    double fgrad_tt=0.0;    //Total time
+
+
+    //Constraints vector
+
+    int g_cnt=0;  //Number of calls
+    double g_avg_t; //Avg computation time
+    double g_tt;    //Total time
+
+    //Jacobian of the constraints
+
+    int g_jac_cnt=0;  //Number of calls
+    double g_jac_avg_t; //Avg computation time
+    double g_jac_tt;    //Total time
+
+};
+
 
 #endif //End CORE_STRUCTURES
 

@@ -124,19 +124,7 @@ void nocs::Function::dae(const Eigen::VectorXd &states, const Eigen::VectorXd &c
 
 void nocs::Function::path(const Eigen::VectorXd &states, const Eigen::VectorXd &controls,const double &tk,Eigen::VectorXd &path,localCollocation &problem){
 
-    double q1=states(0);
-    double q2=states(1);
 
-    double l1=0.5;
-    double l2=0.5;
-
-    double x=l1*cos(q1)+l2*cos(q1+q2);
-    double y=l1*sin(q1)+l2*sin(q1+q2);
-
-    double xc=0.75;
-    double yc=0.75;
-
-    path(0)=pow(x-xc,2.0)+pow(y-yc,2.0)-0.1;
 
 
 
@@ -164,11 +152,11 @@ void nocs::Function::events(const Eigen::VectorXd &initial_states, const Eigen::
     e(2) = q1d_t0;
     e(3) = q2d_t0;
 
-    e(4)=l1*cos(q1_tF)+l2*cos(q1_tF+q2_tF);
-    e(5)=l1*sin(q1_tF)+l2*sin(q1_tF+q2_tF);
+//    e(4)=l1*cos(q1_tF)+l2*cos(q1_tF+q2_tF);
+//    e(5)=l1*sin(q1_tF)+l2*sin(q1_tF+q2_tF);
 
-    //e(4)=q1_tF;
-    //e(5)=q2_tF;
+    e(4)=q1_tF;
+    e(5)=q2_tF;
 
 
     e(6) = q1d_tF;
@@ -179,6 +167,7 @@ void nocs::Function::events(const Eigen::VectorXd &initial_states, const Eigen::
 
 void nocs::Function::analytical::costGradient(const Eigen::VectorXd &states, const Eigen::VectorXd &controls,const double& t, Eigen::VectorXd &gradient, localCollocation &problem){
 
+
     //The gradient of the Lagrange term should be return using the sparsity pattern:
 
     //grad(L (x, u, t))=[ dL | dL ]
@@ -187,19 +176,16 @@ void nocs::Function::analytical::costGradient(const Eigen::VectorXd &states, con
 
     //dim(grad)=[1,nStates+nControls]
 
-    //double f1=pow(u1,2.0)+ pow(u2,2.0);
 
-    double u1=controls(0);  //Tau 1
-    double u2=controls(1);  //Tau 2
+    int nDof=2;;
 
     gradient.setZero(problem.nStates+problem.nControls);
 
-    gradient(4)=2*u1;
-    gradient(5)=2*u2;
 
-}//End costGradient
+    gradient.tail(problem.nControls)=2*controls;
 
-void nocs::Function::analytical::fGradient(const Eigen::VectorXd &states, const Eigen::VectorXd &controls, double &t, Eigen::MatrixXd &gradient, localCollocation &problem){
+}
+void nocs::Function::analytical::fGradient(const Eigen::VectorXd &states,const Eigen::VectorXd &controls, double &t, Eigen::MatrixXd &gradient, localCollocation &problem){
 
     //The gradient of the dynamics should be return using the sparsity pattern:
 
@@ -307,27 +293,9 @@ void nocs::Function::analytical::pathGradient(Eigen::VectorXd &states, Eigen::Ve
 
     //dim(grad)=[nPath,nStates+nControls]
 
-    double q1=states(0);
-    double q2=states(1);
-
-    double l1=0.5;
-    double l2=0.5;
-
-    double xc=0.75;
-    double yc=0.75;
-
-    gradient.setZero(1,6);
-
-    //Path w.r.t q1
-    gradient(0,0)=(l2*sin(q1+q2)+l1*sin(q1))*(-xc+l2*cos(q1+q2)+l1*cos(q1))*-2.0+(l2*cos(q1+q2)+l1*cos(q1))*(-yc+l2*sin(q1+q2)+l1*sin(q1))*2.0;
 
 
-    //Path w.r.t q2
-    gradient(0,1)=l2*sin(q1+q2)*(-xc+l2*cos(q1+q2)+l1*cos(q1))*-2.0+l2*cos(q1+q2)*(-yc+l2*sin(q1+q2)+l1*sin(q1))*2.0;
-
-    //Path wrt to q1d, q2d, u1 and u2 are equal to 0
 }
-
 void nocs::Function::analytical::eventGradient(Eigen::VectorXd &x0,Eigen::VectorXd &xN,double &t0,double &tF,Eigen::VectorXd &Dt0, Eigen::VectorXd &DtF,Eigen::MatrixXd &De0, Eigen::MatrixXd &DeF, localCollocation &problem){
 
     //The gradient of the event constraints should be return using the sparsity pattern:
@@ -348,35 +316,18 @@ void nocs::Function::analytical::eventGradient(Eigen::VectorXd &x0,Eigen::Vector
     //    [ -- ]  dim=(nEvents,nStates)
     //    [ dxN]
 
-    double l1,l2;
-
-    l1=0.5; l2=0.5;
-
-    double q1_tF  = xN(0);
-    double q2_tF  = xN(1);
 
     Dt0.setZero(problem.nEvents); //No derivatives w.r.t. initial time
     DtF.setZero(problem.nEvents); //No derivatives w.r.t final time
 
     De0.setZero(problem.nEvents,problem.nStates);
 
-    De0.row(0)<<1,0,0,0;
-    De0.row(1)<<0,1,0,0;
-    De0.row(2)<<0,0,1,0;
-    De0.row(3)<<0,0,0,1;
-
-
-    double e4_q1=-l1*sin(q1_tF)-l2*sin(q1_tF+q2_tF);
-    double e4_q2=-l2*sin(q1_tF+q2_tF);
-
-    double e5_q1=l1*cos(q1_tF)+l2*cos(q1_tF+q2_tF);
-    double e5_q2=l2*cos(q1_tF+q2_tF);
-
     DeF.setZero(problem.nEvents,problem.nStates);
 
-    DeF.row(4)<<e4_q1,e4_q2,0,0;
-    DeF.row(5)<<e5_q1,e5_q2,0,0;
-    DeF.row(6)<<  0  , 0   ,1,0;
-    DeF.row(7)<<  0  , 0   ,0,1;
+    De0.block(0,0,problem.nStates,problem.nStates)=Eigen::MatrixXd::Identity(problem.nStates,problem.nStates);
 
-}//end eventGradient
+    DeF.block(problem.nStates,0,problem.nStates,problem.nStates)=Eigen::MatrixXd::Identity(problem.nStates,problem.nStates);
+
+
+}
+

@@ -31,7 +31,7 @@
 #include <string>
 #include <Eigen/Dense>
 
-//#define multiPhase
+#define multiPhase
 
 
 extern "C"{
@@ -93,7 +93,7 @@ int main(){
 
 #ifndef multiPhase
 
-    std::string fileName="/home/sebastian/Documents/GitHub/nocs/solver/build/example/localCollocation/pinocchio_examples/NAO_COM/PaperPoses/Pose2/xSolution.txt";
+    std::string fileName="/home/sebastian/Documents/Phd/Resultados_paper/POSE6/xSolution.txt";
 
     Eigen::MatrixXd xSol;
 
@@ -105,19 +105,14 @@ int main(){
     q=xSol.topRows(24);
 #else
 
-    std::string fileName1="/home/sebastian/Documents/GitHub/nocs/solver/build/example/localCollocation/pinocchio_examples/NAO_COM/TestMultipose/xSolution.txt";
-    std::string fileName2="/home/sebastian/Documents/GitHub/nocs/solver/build/example/localCollocation/pinocchio_examples/NAO_COM/TestMultipose/xSolution2.txt";
-    //std::string fileName3="/home/sebastian/Documents/GitHub/nocs/solver/build/example/localCollocation/pinocchio_examples/NAO_COM/Multiphase/xSolution3.txt";
-
+    std::string fileName1="/home/sebastian/Documents/Phd/Resultados_paper/POSE1/xSolution.txt";
+    std::string fileName2="/home/sebastian/Documents/Phd/Resultados_paper/POSE5/xSolution.txt";
 
     Eigen::MatrixXd xSol_phase1;
     Eigen::MatrixXd xSol_phase2;
-    //Eigen::MatrixXd xSol_phase3;
 
     xSol_phase1=readMatrix(fileName1);
     xSol_phase2=readMatrix(fileName2);
-    //xSol_phase3=readMatrix(fileName3);
-
 
     int nDiscretePoints=xSol_phase1.cols()+xSol_phase2.cols();//+xSol_phase3.cols();
 

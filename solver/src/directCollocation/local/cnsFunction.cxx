@@ -106,7 +106,9 @@ void rightHandSideSparsity(localCollocation &problem, Eigen::VectorXd &z, Eigen:
 
     q.segment(problem.nStates*(problem.nCollocationPoints),problem.nEvents)=e;
 
-    q(q.size()-1)=(t0-tf);
+
+    //---Modification
+    //q(q.size()-1)=(t0-tf);
 
     //Now compute the full constraints vector
 
@@ -312,16 +314,20 @@ void derivatives::computePropagatedJacobian(localCollocation &problem,Eigen::Vec
 
    //Set the sparsity of the time constraint
 
-   iRow=problem.nCollocationPoints*(nStates+nPath)+nEvents;
-   iCol=0;
-   data.push_back(T(iRow,iCol,1));
-   iCol=1;
-   data.push_back(T(iRow,iCol,-1));
+
+    //Modification
+//   iRow=problem.nCollocationPoints*(nStates+nPath)+nEvents;
+//   iCol=0;
+//   data.push_back(T(iRow,iCol,1));
+//   iCol=1;
+//   data.push_back(T(iRow,iCol,-1));
 
     //Obtain the sparsity data of the derivative matrix
 
 
-   Eigen::SparseMatrix<double> D(problem.nCollocationPoints*(nStates+nPath)+nEvents+1,nDecVar);
+    Eigen::SparseMatrix<double> D(problem.nCollocationPoints*(nStates+nPath)+nEvents,nDecVar);
+
+   //Eigen::SparseMatrix<double> D(problem.nCollocationPoints*(nStates+nPath)+nEvents+1,nDecVar);
 
    D.setFromTriplets(data.begin(),data.end());
 

@@ -145,10 +145,10 @@ void localCollocation::setCnsBounds(){
         //Time constraint
         //-----------------
 
-        double diff_t0Min_tfMax=bounds.initialTime.lower(0)-bounds.finalTime.upper(0);
+//        double diff_t0Min_tfMax=bounds.initialTime.lower(0)-bounds.finalTime.upper(0);
 
-        NLP.glb(NLP.nCns-1)=diff_t0Min_tfMax;
-        NLP.gub(NLP.nCns-1)=0.0;
+//        NLP.glb(NLP.nCns-1)=diff_t0Min_tfMax;
+//        NLP.gub(NLP.nCns-1)=0.0;
 
 } //End localCollocation::setCnsBounds()
 

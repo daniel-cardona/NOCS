@@ -36,17 +36,17 @@ double nocs::Function::endpoint_cost(const Eigen::VectorXd &x0,const Eigen::Vect
 
 double nocs::Function::integrand_cost(const Eigen::VectorXd &states,const Eigen::VectorXd &controls, const double &tk,localCollocation &problem){
 
-    int nDoF=problem.robot_model->q_size;
+    int nDoF=problem.model.nq;
 
-//    Eigen::VectorXd diff(nDoF);
+    Eigen::VectorXd diff(nDoF);
 
-//    double cost=0;
+    double cost=0;
 
-//    diff=problem.NLP.xk1.tail(nDoF)-states.tail(nDoF);
+    diff=problem.NLP.xk1.tail(nDoF)-states.tail(nDoF);
 
-//    cost=diff.transpose()*diff;
+    cost=diff.transpose()*diff;
 
-    double cost=states.tail(nDoF).transpose()*states.tail(nDoF);
+    //double cost=controls.transpose()*controls;
 
     return cost;
 
@@ -189,38 +189,36 @@ void nocs::Function::analytical::costGradient(const Eigen::VectorXd &states, con
     //dim(grad)=[1,nStates+nControls]
 
 
-     int nDoF=problem.robot_model->q_size;
-
-//    gradient.setZero(problem.nStates+problem.nControls);
-
-//    Eigen::VectorXd qd_xk1(nDoF);
-//    Eigen::VectorXd grad_qd(nDoF);
-//    Eigen::VectorXd grad_qdk1(nDoF);
-
-//    qd_xk1=problem.NLP.xk1.tail(nDoF);
-
-//    if(problem.NLP.gradient_eval==1){
-
-//        //Compute the gradient of the cost function w.r.t. the k instant
-//        grad_qd=(2*states.tail(nDoF))-(2*qd_xk1);
-//        gradient.segment(nDoF,nDoF)=grad_qd;
-
-//    }
-
-//    if(problem.NLP.gradient_eval==2){
-
-//        //In particular this cost function has a dependency on the k+1 instant, compute the gradient w.r.t that derivative
-
-//        grad_qdk1=(2*qd_xk1)-(2*states.tail(nDoF));
-//        problem.NLP.gradxk1.segment(nDoF,nDoF)=grad_qdk1;
-
-//    }
+    int nDoF=problem.model.nq;
 
     gradient.setZero(problem.nStates+problem.nControls);
 
-    //gradient.tail(problem.nControls)=2*controls;
+    Eigen::VectorXd qd_xk1(nDoF);
+    Eigen::VectorXd grad_qd(nDoF);
+    Eigen::VectorXd grad_qdk1(nDoF);
 
-    gradient.segment(problem.robot_model->q_size,problem.robot_model->q_size)=2*states.tail(nDoF);
+    qd_xk1=problem.NLP.xk1.tail(nDoF);
+
+    if(problem.NLP.gradient_eval==1){
+
+        //Compute the gradient of the cost function w.r.t. the k instant
+        grad_qd=(2*states.tail(nDoF))-(2*qd_xk1);
+        gradient.segment(nDoF,nDoF)=grad_qd;
+
+    }
+
+    if(problem.NLP.gradient_eval==2){
+
+        //In particular this cost function has a dependency on the k+1 instant, compute the gradient w.r.t that derivative
+
+        grad_qdk1=(2*qd_xk1)-(2*states.tail(nDoF));
+        problem.NLP.gradxk1.segment(nDoF,nDoF)=grad_qdk1;
+
+    }
+
+    /*gradient.setZero(problem.nStates+problem.nControls);
+
+    gradient.tail(problem.nControls)=2*controls;*/
 
 
 

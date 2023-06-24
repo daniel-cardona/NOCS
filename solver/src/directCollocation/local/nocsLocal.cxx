@@ -49,7 +49,7 @@ void nocsLocal(localCollocation &init_problem, localCollocation &solution){
         solution=init_problem;
 
 
-
+    solution.printStatistics();
 
     for( n=1;n<init_problem.algorithm.maxMeshIterations;n++){
 
@@ -75,6 +75,8 @@ void nocsLocal(localCollocation &init_problem, localCollocation &solution){
        //Save the mesh iteration in the vector
 
        problems.push_back(meshIteration);
+
+       meshIteration.printStatistics();
 
        //If the convergence conditions has been fullfilled break the cycle and return the solution
        if(status==2){

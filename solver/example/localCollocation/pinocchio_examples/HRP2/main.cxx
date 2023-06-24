@@ -26,6 +26,7 @@
 
 
 #include "directCollocation/local/nocsLocal.hpp"
+#include "directCollocation/local/utils.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -38,18 +39,19 @@
 int main(){
 
 
-     const std::string urdf_filename = PINOCCHIO_MODEL_DIR + std::string("/ur5_mod.urdf");
+     const std::string urdf_filename = PINOCCHIO_MODEL_DIR + std::string("/yumi_complete.urdf");
 
 
      //SETUP AND CONSTRUCT THE PROBLEM
 
-     int nStates=12;
-     int nControls=6;
-     int nEvents=24;
+     int nStates=36;
+     int nControls=18;
+     int nEvents=nStates*2;
      int nPath=0;
-     int nDiscretePoints=15;
+     int nDiscretePoints=180;
 
      nocs::localCollocation problem(nStates,nControls,nDiscretePoints,nPath,nEvents,urdf_filename);
+
 
      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
      //&-----------------------Variable bounds-------------------------&
@@ -62,14 +64,14 @@ int main(){
      problem.bounds.states.lower.head(nDoF)=problem.model.lowerPositionLimit;
      problem.bounds.states.upper.head(nDoF)=problem.model.upperPositionLimit;
 
-     problem.bounds.states.lower.tail(nDoF)=Eigen::VectorXd::Ones(nDoF)*-10;
-     problem.bounds.states.upper.tail(nDoF)=Eigen::VectorXd::Ones(nDoF)*10;
+     problem.bounds.states.lower.tail(nDoF)=-problem.model.velocityLimit;
+     problem.bounds.states.upper.tail(nDoF)=problem.model.velocityLimit;
 
      //------------Torque limits --------------------
 
 
-     problem.bounds.controls.lower=Eigen::VectorXd::Ones(nControls)*-150;
-     problem.bounds.controls.upper=Eigen::VectorXd::Ones(nControls)*150;
+     problem.bounds.controls.lower=-problem.model.effortLimit;
+     problem.bounds.controls.upper=problem.model.effortLimit;
 
      //-----------Initial and final time bounds ---------
 
@@ -78,7 +80,7 @@ int main(){
      problem.bounds.initialTime.upper(0)=0;
 
      //Finished at tF=15;
-     problem.bounds.finalTime.lower(0)=10.0;
+     problem.bounds.finalTime.lower(0)=1.0;
      problem.bounds.finalTime.upper(0)=10.0;
 
 
@@ -88,37 +90,78 @@ int main(){
 
      //-- Initial conditions
 
-        //Position
-             problem.bounds.events.lower(0)=0; //e(0)=q1_0
-             problem.bounds.events.lower(1)=0; //e(1)=q2_0
-             problem.bounds.events.lower(2)=0; //e(2)=q3_0
-             problem.bounds.events.lower(3)=0; //e(3)=q4_0
-             problem.bounds.events.lower(4)=0; //e(4)=q5_0
-             problem.bounds.events.lower(5)=0; //e(5)=q6_0
-        //Velocities
-             problem.bounds.events.lower(6)=0; //e(6)=qd1_0
-             problem.bounds.events.lower(7)=0; //e(7)=qd2_0
-             problem.bounds.events.lower(8)=0; //e(8)=qd3_0
-             problem.bounds.events.lower(9)=0; //e(9)=qd4_0
-             problem.bounds.events.lower(10)=0; //e(10)=qd5_0
-             problem.bounds.events.lower(11)=0; //e(11)=qd6_0
+     problem.bounds.events.lower.setZero();
 
  //-- Final conditions
 
-        //Position
-             problem.bounds.events.lower(12)=4.5; //e(12)=q1_N
-             problem.bounds.events.lower(13)=4.5; //e(13)=q2_N
-             problem.bounds.events.lower(14)=2.2; //e(14)=q3_N
-             problem.bounds.events.lower(15)=2.6; //e(15)=q4_N
-             problem.bounds.events.lower(16)=1.2; //e(16)=q5_N
-             problem.bounds.events.lower(17)=-1; //e(17)=q6_N
-        //Velocities
-             problem.bounds.events.lower(18)=0; //e(18)=qd1_N
-             problem.bounds.events.lower(19)=0; //e(19)=qd2_N
-             problem.bounds.events.lower(20)=0; //e(20)=qd3_N
-             problem.bounds.events.lower(21)=0; //e(21)=qd4_N
-             problem.bounds.events.lower(22)=0; //e(22)=qd5_N
-             problem.bounds.events.lower(23)=0; //e(23)=qd6_N
+     Eigen::VectorXd init_cfg(nDoF);
+
+     init_cfg.setZero();
+
+//     init_cfg(0)=-0.5011;
+//     init_cfg(1)=-0.4853;
+//     init_cfg(2)=0.4475;
+//     init_cfg(3)=-0.0261;
+//     init_cfg(4)=-0.4407;
+//     init_cfg(5)=0.5943;
+//     init_cfg(6)=0.0115;
+//     init_cfg(7)=0;
+//     init_cfg(8)=0;
+//     init_cfg(9)=0.7123;
+//     init_cfg(10)=-1.5916;
+//     init_cfg(11)=-0.4834;
+//     init_cfg(12)=-0.0246;
+//     init_cfg(13)=-0.1350;
+//     init_cfg(14)=-1.5054;
+//     init_cfg(15)=-0.4996;
+//     init_cfg(16)=0;
+//     init_cfg(17)=0;
+
+     Eigen::VectorXd end_cfg(nDoF);
+
+     end_cfg(0)=-0.5011;
+     end_cfg(1)=-0.4853;
+     end_cfg(2)=0.4475;
+     end_cfg(3)=-0.0261;
+     end_cfg(4)=-0.4407;
+     end_cfg(5)=0.5943;
+     end_cfg(6)=0.0115;
+     end_cfg(7)=0;
+     end_cfg(8)=0;
+     end_cfg(9)=2.9109;
+     end_cfg(10)=-0.6670;
+     end_cfg(11)=-1.9099;
+     end_cfg(12)=-1.5054;
+     end_cfg(13)=1.3029;
+     end_cfg(14)=-1.5219;
+     end_cfg(15)=-2.0625;
+     end_cfg(16)=0.0250;
+     end_cfg(17)=0.0250;
+
+
+    Eigen::VectorXd l_bnd(nDoF);
+    Eigen::VectorXd u_bnd(nDoF);
+
+    l_bnd=problem.bounds.states.lower.head(nDoF);
+    u_bnd=problem.bounds.states.upper.head(nDoF);
+
+    if( nocs::utils::testConfiguration(l_bnd,u_bnd,init_cfg) || nocs::utils::testConfiguration(l_bnd, u_bnd, end_cfg) ==-1){
+        return -1;
+    }
+
+
+     for(int i=0; i<nDoF; i++){
+
+         problem.bounds.events.lower(i)=init_cfg(i);
+         problem.bounds.events.lower(nStates+i)=end_cfg(i);
+
+     }
+
+     //Velocities
+     problem.bounds.events.lower.tail(nDoF).setZero();
+
+
+
 
   //-- Set it as equality constraint
        problem.bounds.events.upper=problem.bounds.events.lower;
@@ -145,14 +188,11 @@ int main(){
 
       int n=problem.nCollocationPoints;
 
-      problem.guess.states.row(0).setLinSpaced(n,0, problem.bounds.events.lower(16));
-      problem.guess.states.row(1).setLinSpaced(n,0, problem.bounds.events.lower(17));
-      problem.guess.states.row(2).setLinSpaced(n,0, problem.bounds.events.lower(18));
-      problem.guess.states.row(3).setLinSpaced(n,0, problem.bounds.events.lower(19));
-      problem.guess.states.row(4).setLinSpaced(n,0, problem.bounds.events.lower(20));
-      problem.guess.states.row(5).setLinSpaced(n,0, problem.bounds.events.lower(21));
-      problem.guess.states.row(6).setLinSpaced(n,0, problem.bounds.events.lower(22));
-      problem.guess.states.row(7).setLinSpaced(n,0, problem.bounds.events.lower(23));
+      for(int i=0; i<problem.model.nq; i++){
+
+         problem.guess.states.row(i).setLinSpaced(n,problem.bounds.events.lower(i),problem.bounds.events.lower(nStates+i));
+
+      }
 
       problem.guess.controls.setZero();
       problem.guess.t0=0;
@@ -188,6 +228,7 @@ int main(){
       auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
       cout <<"Time required for full resolution of the problem: " <<duration.count() <<" microseconds"<< endl;
+
 
   return 0;
 

@@ -286,7 +286,12 @@ void localCollocation::setConstantAB(){
         //Sparsity information of the matrix B
         int nzElementsDynamics=(5*ny)*(nDiscretePoints-1);
 
-        nzElements=nzElementsDynamics+nEvents+nP+1;
+
+
+        //nzElements=nzElementsDynamics+nEvents+nP+1;
+        //Modification -----
+        nzElements=nzElementsDynamics+nEvents+nP;
+
 
         //Index variables
         i=0;
@@ -392,7 +397,9 @@ void localCollocation::setConstantAB(){
 
         }
 
-        NLP.sparsity.B.resize(nDefects+nP+nEvents+1,(ny*nCollocationPoints)+nP+nEvents+1);
+
+        NLP.sparsity.B.resize(nDefects+nP+nEvents,(ny*nCollocationPoints)+nP+nEvents);
+        //NLP.sparsity.B.resize(nDefects+nP+nEvents+1,(ny*nCollocationPoints)+nP+nEvents+1);
         NLP.sparsity.B.setFromTriplets(dataB.begin(),dataB.end());
 
     }//End else if
@@ -501,16 +508,22 @@ void localCollocation::computeNumericalSparsity(){
 
    //Set the sparsity of the time constraint
 
-   iRow=nCollocationPoints*(nStates+nPath)+nEvents;
-   iCol=0;
-   data.push_back(T(iRow,iCol,value));
-   iCol=1;
-   data.push_back(T(iRow,iCol,value));
+
+    //Modifation
+//   iRow=nCollocationPoints*(nStates+nPath)+nEvents;
+//   iCol=0;
+//   data.push_back(T(iRow,iCol,value));
+//   iCol=1;
+//   data.push_back(T(iRow,iCol,value));
 
     //Obtain the sparsity data of the derivative matrix
 
 
-   Eigen::SparseMatrix<double> D(nCollocationPoints*(nStates+nPath)+nEvents+1,nDecVar);
+
+   //Eigen::SparseMatrix<double> D(nCollocationPoints*(nStates+nPath)+nEvents+1,nDecVar);
+
+   //MOdification
+   Eigen::SparseMatrix<double> D(nCollocationPoints*(nStates+nPath)+nEvents,nDecVar);
 
    D.setFromTriplets(data.begin(),data.end());
 

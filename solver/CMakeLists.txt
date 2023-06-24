@@ -31,18 +31,25 @@ include_directories("include")
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-#-------IPOPT
 
-list(APPEND CMAKE_FIND_ROOT_PATH ${PROJECT_SOURCE_DIR}/../ipopt/cmake/linux-64)
-find_package(IPOPT)
+find_package(PkgConfig REQUIRED)
+set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+
+#-------IPOPT
+pkg_check_modules(IPOPT REQUIRED ipopt)
 include_directories(${IPOPT_INCLUDE_DIRS})
+link_directories(${IPOPT_LIBRARY_DIRS})
+
+#----Eigen library
+pkg_check_modules(EIGEN REQUIRED eigen3)
+include_directories(${EIGEN_INCLUDE_DIRS})
+
+
+list(APPEND CMAKE_FIND_ROOT_PATH ${PROJECT_SOURCE_DIR}/../Coppelia/cmake/linux-64)
+find_package(Coppelia)
+include_directories(${Coppelia_INCLUDE_DIRS})
 
 add_definitions(-DMAX_EXT_API_CONNECTIONS=255)
-
-
-#----- Eigen library
-
-include_directories("../eigen3")
 
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

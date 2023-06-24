@@ -26,7 +26,6 @@
 
 #include "directCollocation/local/nocsLocal.hpp"
 
-#include "matplotlibcpp.h"
 
 #include <chrono>
 #include <fstream>
@@ -36,11 +35,9 @@ using namespace std::chrono;
 
 using namespace std;
 
-namespace plt = matplotlibcpp;
-
 int main(){
 
-    int maxIter=7;
+    int maxIter=1;
     
     //Set the main data of the optimal control problem
 
@@ -48,7 +45,7 @@ int main(){
     int nControls=2;
     int nEvents=8;
     int nPath=0;
-    int nDiscretePoints=15;
+    int nDiscretePoints=240;
 
     nocs::localCollocation problem(nStates,nControls,nDiscretePoints,nPath,nEvents);
 
@@ -134,9 +131,10 @@ int main(){
     //&---------Set the collocation information of the problem---------------&
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-    problem.colMethod="Trapezoidal";
-    //problem.colMethod="Hermite-Simpson";
-    problem.derivatives="Analytical";
+
+    problem.colMethod="Hermite-Simpson";
+    problem.derivatives.jacobianCns="Analytical";
+    problem.derivatives.gradientCost="Analytical";
 
     //Set the problem depending on the local method selected
 
@@ -152,6 +150,10 @@ int main(){
 
     problem.guess.states.row(0).setLinSpaced(nNodes,q1_t0,q1_tF);
     problem.guess.states.row(1).setLinSpaced(nNodes,q2_t0,q2_tF);
+
+    problem.guess.states.row(0).setZero();
+    problem.guess.states.row(1).setZero();
+
     problem.guess.states.row(2).setZero();
     problem.guess.states.row(3).setZero();
 
@@ -190,84 +192,6 @@ int main(){
     auto duration = duration_cast<microseconds>(stop - start);
 
     cout <<"Time required for full resolution of the problem: " <<duration.count() <<" microseconds"<< endl;
-
-
-    int N=probSol.solution.tSol.size();
-
-    std::vector<double> q1_sol(N), q2_sol(N);
-    std::vector<double> qd1_sol(N), qd2_sol(N);
-    std::vector<double> q1dd(N), q2dd(N);
-    std::vector<double> u1_sol(N),u2_sol(N);
-    std::vector<double> t(N);
-
-    for (int i=0; i<N;i++){
-
-        q1_sol.at(i)=probSol.solution.xSol(0,i);
-        q2_sol.at(i)=probSol.solution.xSol(1,i);
-
-        qd1_sol.at(i)=probSol.solution.xSol(2,i);
-        qd2_sol.at(i)=probSol.solution.xSol(3,i);
-
-        u1_sol.at(i)=probSol.solution.uSol(0,i);
-        u2_sol.at(i)=probSol.solution.uSol(1,i);
-
-        q1dd.at(i)=probSol.solution.fSol(2,i);
-        q2dd.at(i)=probSol.solution.fSol(3,i);
-
-        t.at(i)=probSol.solution.tSol(i);
-
-    }
-
-    plt::suptitle("Solution of the states");
-    plt::subplot(2,2,1);
-        plt::title("q1-1st mesh iteration");
-        plt::scatter(t,q1_sol,8.0);
-        plt::plot(t,q1_sol,"k-");
-        plt::grid(true);
-    plt::subplot(2,2,2);
-        plt::title("q2-1st mesh iterarion");
-        plt::scatter(t,q2_sol,8.0);
-        plt::plot(t,q2_sol,"r-");
-        plt::grid(true);
-    plt::subplot(2,2,3);
-       plt::title("qd1-1st mesh iterarion");
-       plt::scatter(t,qd1_sol,8.0);
-       plt::plot(t,qd1_sol,"b-");
-       plt::grid(true);
-    plt::subplot(2,2,4);
-       plt::title("qd2-1st mesh iterarion");
-       plt::scatter(t,qd2_sol,8.0);
-       plt::plot(t,qd2_sol,"r-");
-       plt::grid(true);
-    plt::show();
-
-    plt::suptitle("Control inputs");
-    plt::subplot(2,1,1);
-        plt::title("u1-1st mesh iteration");
-        plt::scatter(t,u1_sol,8.0);
-        plt::plot(t,u1_sol,"k-");
-        plt::grid(true);
-    plt::subplot(2,1,2);
-        plt::title("u2-1st mesh iterarion");
-        plt::scatter(t,u2_sol,8.0);
-        plt::plot(t,u2_sol,"r-");
-        plt::grid(true);
-    plt::show();
-
-    plt::suptitle("Derivatives");
-    plt::subplot(2,1,1);
-        plt::title("q1dd-First mesh iterarion");
-        plt::scatter(t,q1dd,3.0);
-        plt::plot(t,q1dd,"k-");
-        plt::grid(true);
-    plt::subplot(2,1,2);
-        plt::title("q2dd-First mesh iterarion");
-        plt::scatter(t,q2dd,3.0);
-        plt::plot(t,q2dd,"r-");
-        plt::grid(true);
-    plt::show();
-
-
 
     return 0;
 

@@ -49,13 +49,11 @@ double costFcn(localCollocation &problem, Eigen::VectorXd &z){
     Eigen::VectorXd states_k1(problem.nStates);
     Eigen::VectorXd controls_k1(problem.nControls);
 
+    Eigen::VectorXd cost_vec(problem.nCollocationPoints);
+
     utils::getDecVarMatrix(problem.nStates,problem.nControls,problem.nCollocationPoints,z,decVarMatrix,t0,tf);
 
     for(int k=0;k<problem.nCollocationPoints;k++){
-
-        double cost_k=0;
-
-        double interval_cost=0;
 
         //Get the unscaled states and controls in k segment
 
@@ -72,22 +70,10 @@ double costFcn(localCollocation &problem, Eigen::VectorXd &z){
 
         double tk=0;
 
-        double ck=problem.NLP.weights(k); //Assign the quadrature weight
-
-        //Evaluate the integral part of the cost function in k
-
-        cost_k=nocs::Function::integrand_cost(states,controls,tk,problem);
-
-        //Evaluate the integral parte of the cost functon in k+1
-
-        //Use the quadrature!
-
-        interval_cost=ck*cost_k;
-
-        sum_phase+=interval_cost;
-
+        cost_vec(k)=nocs::Function::integrand_cost(states,controls,tk,problem);
     }
 
+    sum_phase=problem.NLP.weights.transpose()*cost_vec;
 
     sum_cost+=(tf-t0)*problem.NLP.time_weights*sum_phase; //Scale the integral part of the cost function
 
@@ -106,11 +92,6 @@ double costFcn(localCollocation &problem, Eigen::VectorXd &z){
     sum_cost+=endpoint_cost;
 
     return sum_cost;
-
-
-
-
-
 }
 
 //-------------------------------------------------------------------------

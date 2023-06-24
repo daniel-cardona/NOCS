@@ -485,6 +485,9 @@ void localCollocation::setupNLP(){
     NLP.nCollocationCns=nStates*NLP.nSegments;
     NLP.nCns=NLP.nCollocationCns+(nPath*nCollocationPoints)+nEvents+1;
 
+    //-------- New version update
+    NLP.nCns=NLP.nCollocationCns+(nPath*nCollocationPoints)+nEvents;
+
     //If an Hermite-Simpson method is used fill the reference matrix,
     //if not just don't initialize it
 
@@ -551,6 +554,8 @@ void localCollocation::setupNLP(){
     cnsFunction           =&nocs::localGenerator::rightHandSideSparsity;
     interpolateSolution   =&nocs::localGenerator::interpolateSolution;
     cnsJacobian           =&nocs::localGenerator::derivatives::computePropagatedJacobian;
+    //cnsJacobian           =&nocs::localGenerator::derivatives::numerical::computeJacobian;
+
 
 
     //Gradient cost pointers
@@ -661,31 +666,11 @@ int localCollocation::solve(){
     this->transcription();
     this->detectProblemSparsity();
 
-    //this->getIndexGroups();
-    //this->getPerturbationMatrix();
-
-    Eigen::VectorXd z(this->NLP.nDecVar);
-    Eigen::VectorXd nz(this->NLP.nDecVar);
-
-//    for(int i=0; i<10 ; i++){
-
-//    nz.setZero();
-//    z.setRandom();
+//    this->getIndexGroups();
+//    this->getPerturbationMatrix();
 
 
-//    auto start = std::chrono::high_resolution_clock::now();
-
-//    nocs::localGenerator::derivatives::computePropagatedJacobian(*this,z,nz);
-
-//    auto stop = std::chrono::high_resolution_clock::now();
-
-//    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-
-//    cout <<duration<< endl;
-
-//    }
-
-//    return 0;
+//  return 0;
 
 
     //1.5. Print the basic information of this mesh iteration
@@ -907,5 +892,17 @@ void localCollocation::printInformation(){
 
 
 }//End printInformation
+
+void localCollocation::printStatistics(){
+
+
+    cout<<"---------------------- STATISTICS ------------------------------------------"<<endl;
+    cout<<endl;
+    cout<<"-Jacobian time: "<<statistics.g_jac_avg_t<<"(us) "<<endl;
+    cout<<"Number of times: "<< statistics.g_jac_cnt<<endl;
+    cout<<endl;
+
+
+}
 
 }//End nocs namespace
