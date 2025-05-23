@@ -4,6 +4,7 @@
 
 NOCS supports both **analytical** and **numerical** derivatives of robot dynamics, using libraries like **Pinocchio** and optionally **RBDL**. It is well-suited for robots with many degrees of freedom and has demonstrated competitive performance against frameworks like **CasADi**.
 
+![Logo](./images/equilibrium_pose_frames.png)
 ---
 
 ## 🚀 Features
@@ -52,3 +53,5 @@ If you use **NOCS** in your research, please cite the following paper:
   note      = {Available at https://github.com/daniel-cardona/NOCS}
 }
 ```
+![Logo2](./images/ur5_secuence.PNG)
+
