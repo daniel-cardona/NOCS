@@ -44,14 +44,6 @@ link_directories(${IPOPT_LIBRARY_DIRS})
 pkg_check_modules(EIGEN REQUIRED eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})
 
-
-list(APPEND CMAKE_FIND_ROOT_PATH ${PROJECT_SOURCE_DIR}/../Coppelia/cmake/linux-64)
-find_package(Coppelia)
-include_directories(${Coppelia_INCLUDE_DIRS})
-
-add_definitions(-DMAX_EXT_API_CONNECTIONS=255)
-
-
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lrt")
 

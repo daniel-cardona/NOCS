@@ -4,9 +4,7 @@ message("BUILD TEST IS ENABLE")
 
 #add_subdirectory(obstacleAvoidance)
 add_subdirectory(RRPlanarRobot)
-#add_subdirectory(RRPlanarRobot_obstacle)
-#add_subdirectory(FiniteDiffTest)
-#add_subdirectory(RRPlanarRobot_circle_manipulation)
+add_subdirectory(RRPlanarRobot_circle_manipulation)
 
 
 

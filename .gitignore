@@ -1,6 +1,10 @@
 solver/build/
 solver/*.user
 
+build/
+
+.vscode
+
 Coppelia/
 
 
