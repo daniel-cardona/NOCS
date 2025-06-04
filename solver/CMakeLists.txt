@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(nocs VERSION 1.0)
 
-set(PACKAGE_NAME "R-NOCS")
+set(PACKAGE_NAME "NOCS")
 set(PACKAGE_VERSION "1.0.0")
 set(PACKAGE_SO_VERSION "1.0")
 set(PACKAGE_DESCRIPTION "Robotics Numerical Optimal Control Solver")
@@ -40,16 +40,23 @@ pkg_check_modules(IPOPT REQUIRED ipopt)
 include_directories(${IPOPT_INCLUDE_DIRS})
 link_directories(${IPOPT_LIBRARY_DIRS})
 
+message(STATUS "IPOPT include dirs: ${IPOPT_INCLUDE_DIRS}")
+message(STATUS "IPOPT libraries: ${IPOPT_LIBRARIES}")
+message(STATUS "IPOPT version: ${IPOPT_VERSION}")
+
 #----Eigen library
 pkg_check_modules(EIGEN REQUIRED eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})
+
+message(STATUS "Eigen include dirs: ${EIGEN_INCLUDE_DIRS}")
+message(STATUS "Eigen version: ${EIGEN_VERSION}")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lrt")
 
 #Add the main modules of nocs
 
-file(GLOB CORE 			"src/core/*.cxx")
+file(GLOB CORE 			    "src/core/*.cxx")
 file(GLOB nlpSolver 		"src/nlpSolver/*.cxx")
 file(GLOB localColModule 	"src/directCollocation/local/*.cxx")
 
@@ -59,6 +66,9 @@ if(DYNLIBRARY STREQUAL "pinocchio")
 
     find_package(pinocchio)
     include_directories(${PINOCCHIO_INCLUDE_DIRS})
+    message(STATUS "Pinocchio include dirs: ${PINOCCHIO_INCLUDE_DIRS}")
+    message(STATUS "Pinocchio libraries: ${PINOCCHIO_LIBRARIES}")
+    message(STATUS "Pinocchio version: ${PINOCCHIO_VERSION}")
     set(pinocchio_compile ON CACHE BOOL "Flag: Build nocs with pinnochio library" FORCE)
     set(geoMBD_compile OFF CACHE BOOL "" FORCE)
     set(rbdl_compile OFF CACHE BOOL "" FORCE)
