@@ -28,17 +28,19 @@ Ensure the following dependencies are installed in `PREFIX=/usr/local/`:
 
 ---
 
-## 🛠️ Installation
+## 🛠️ Setting up NOCS test
 
 Clone and build the project with CMake:
 
 ```bash
-git clone https://github.com/yourusername/NOCS.git
+git clone https://github.com/daniel-cardona/NOCS.git
 cd NOCS
-mkdir build && cd build
-cmake -DDYNLIBRARY=pinocchio ..    # or use -DDYNLIBRARY=rbdl
-make -j$(nproc)                    # Use -jN to parallelize
+#For nocs compilation without dynamic libraries
+./compile_nocs_test.sh
+#For nocs compilation with pinocchio library
+./compile_pinnochio_tests.sh
 ```
+![Logo](./images/contact_manipulator.gif)
 
 ## 📚 Citing This Work
 
@@ -47,7 +49,7 @@ If you use **NOCS** in your research, please cite the following paper:
 ```bibtex
 @article{yourcite,
   title     = {Trajectory optimization for highly articulated robots based on sparsity-free local direct collocation},
-  author    = {Daniel Carodna-Ortiz, Gustavo Arechavaleta},
+  author    = {Daniel Cardona-Ortiz, Gustavo Arechavaleta},
   journal   = {Journal/Conference Name},
   year      = {2025},
   note      = {Available at https://github.com/daniel-cardona/NOCS}
