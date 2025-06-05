@@ -32,7 +32,7 @@
 #include <fstream>
 
 #ifndef PINOCCHIO_MODEL_DIR
-  #define PINOCCHIO_MODEL_DIR "../../../../../data/pinocchio_models"
+  #define PINOCCHIO_MODEL_DIR "../../solver/data/pinocchio_models"
 #endif
 
 int main(){
